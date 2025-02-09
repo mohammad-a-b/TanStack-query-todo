@@ -2,56 +2,42 @@
 import { ref } from "vue";
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import { createTodo } from "@/services/api";
+
 const form = ref({
   title: "",
   description: "",
   dueDate: "",
   priority: "medium",
 });
+
 const queryClient = useQueryClient();
 const emit = defineEmits(["todo-added"]);
-const mutation = useMutation({
-  mutationFn: (newTodo) => createTodo(newTodo),
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ["todos"] });
-    Object.assign(form.value, {
-      title: "",
-      description: "",
-      dueDate: "",
-      priority: "medium",
-    });
-    emit("todo-added");
-  },
-});
-const submit = () => {
-  mutation.mutate({ ...form.value, completed: false });
-};
+
+  const mutation = useMutation({
+    mutationFn: createTodo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+      form.value = { title: "", description: "", dueDate: "", priority: "medium" };
+      emit("todo-added");
+    },
+  });
+
+const submit = () => mutation.mutate({ ...form.value, completed: false });
 </script>
 
 <template>
   <div class="add-todo">
     <h2 class="form-title">Add Todo</h2>
     <form @submit.prevent="submit">
-      <input
-        v-model="form.title"
-        placeholder="Title"
-        required
-        class="form-input"
-      />
-      <textarea
-        v-model="form.description"
-        placeholder="Description"
-        class="form-textarea"
-      ></textarea>
+      <input v-model="form.title" placeholder="Title" required class="form-input" />
+      <textarea v-model="form.description" placeholder="Description" class="form-textarea"></textarea>
       <input v-model="form.dueDate" type="date" required class="form-input" />
       <select v-model="form.priority" required class="form-select">
         <option value="low">Low</option>
         <option value="medium">Medium</option>
         <option value="high">High</option>
       </select>
-      <button type="submit" :disabled="mutation.isLoading" class="form-button">
-        Add Todo
-      </button>
+      <button type="submit" :disabled="mutation.isLoading" class="form-button">Add Todo</button>
     </form>
   </div>
 </template>
@@ -94,7 +80,6 @@ form {
   background-color: #f7f9fc;
   resize: vertical;
   min-height: 140px;
-
 }
 .form-button {
   background-color: #2d3436;

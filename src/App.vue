@@ -1,15 +1,20 @@
 <template>
   <div class="app-container">
     <h1 class="app-title">Todo Manager</h1>
-    <AddTodo  />
+    <AddTodo @todo-added="refreshTodos" />
     <TodoList />
   </div>
 </template>
 
 <script setup>
-import TodoList from './components/TodoList.vue';
-import AddTodo from './components/AddTodo.vue';
+import TodoList from "./components/TodoList.vue";
+import AddTodo from "./components/AddTodo.vue";
+
+const refreshTodos = () => {
+  alert("Todo added!");
+};
 </script>
+
 
 <style scoped>
 .app-container {

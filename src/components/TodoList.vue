@@ -3,33 +3,31 @@ import { ref, computed } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import { fetchTodos } from "@/services/api";
 import TodoItem from "./TodoItem.vue";
+
 const filter = ref("all");
 const { data, isLoading, isError, refetch } = useQuery({
   queryKey: ["todos"],
   queryFn: fetchTodos,
-  staleTime: 1000 * 60,
-});
-const todos = computed(() => data.value || []);
-const filteredTodos = computed(() => {
-  if (filter.value === "all") return todos.value;
-  if (filter.value === "completed")
-    return todos.value.filter((t) => t.completed);
+  staleTime: 60000,
 });
 
-const setFilter = (value) => {
-  filter.value = value;
-};
+const filteredTodos = computed(() =>
+  filter.value === "all"
+    ? data.value || []
+    : (data.value || []).filter((t) => t.completed)
+);
+
 defineExpose({ refresh: refetch });
 </script>
 
 <template>
   <div class="todo-list">
     <div class="filters">
-      <button @click="setFilter('all')" :class="{ active: filter === 'all' }">
+      <button @click="filter = 'all'" :class="{ active: filter === 'all' }">
         All
       </button>
       <button
-        @click="setFilter('completed')"
+        @click="filter = 'completed'"
         :class="{ active: filter === 'completed' }"
       >
         Completed
@@ -37,7 +35,7 @@ defineExpose({ refresh: refetch });
     </div>
     <div v-if="isLoading" class="status-message">Loading...</div>
     <div v-if="isError" class="status-message">Error loading todos.</div>
-    <ul v-if="todos.length" class="todo-items">
+    <ul v-if="filteredTodos.length" class="todo-items">
       <li v-for="todo in filteredTodos" :key="todo.id">
         <TodoItem :todo="todo" @refresh="refetch" />
       </li>
