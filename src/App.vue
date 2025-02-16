@@ -3,7 +3,7 @@
   <header>
     <nav>
       <router-link to="/" class="nav-link">Todo Manager</router-link>
-      <router-link to="/dashboard" class="nav-link">داشبورد</router-link>
+      <router-link to="/dashboard" class="nav-link">Dashboard</router-link>
     </nav>
   </header>
   <main class="app-container">
@@ -35,7 +35,7 @@ nav {
   max-width: 900px;
   margin: 0 auto;
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   gap: 40px;
 }
 .nav-link {
