@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 import { ref, computed } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import { fetchTodos } from "@/services/api";
@@ -90,5 +90,86 @@ defineExpose({ refresh: refetch });
     opacity: 1;
     transform: translateY(0);
   }
+}
+</style> -->
+<template>
+  <div class="todo-list">
+    <div class="filters">
+      <button @click="filter = 'all'" :class="{ active: filter === 'all' }">All</button>
+      <button @click="filter = 'completed'" :class="{ active: filter === 'completed' }">Completed</button>
+    </div>
+    <div v-if="isLoading" class="status-message">Loading...</div>
+    <div v-if="isError" class="status-message">Error loading todos.</div>
+    <ul v-if="filteredTodos.length" class="todo-items">
+      <li v-for="todo in filteredTodos" :key="todo.id">
+        <TodoItem :todo="todo" @refresh="refetch" />
+      </li>
+    </ul>
+    <div v-else class="status-message">No todos found.</div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+import { useQuery } from '@tanstack/vue-query';
+import { fetchTodos } from '../services/api';
+import TodoItem from './TodoItem.vue';
+
+const filter = ref('all');
+const { data, isLoading, isError, refetch } = useQuery({
+  queryKey: ['todos'],
+  queryFn: fetchTodos,
+  staleTime: 60000,
+});
+const filteredTodos = computed(() => filter.value === 'all' ? data.value || [] : (data.value || []).filter(todo => todo.completed));
+defineExpose({ refresh: refetch });
+</script>
+
+<style scoped>
+.todo-list {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  animation: slideIn 0.5s ease-in-out;
+}
+
+.filters {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.filters button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  background-color: #bdc3c7;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.filters button.active {
+  background-color: #2c3e50;
+  color: #ecf0f1;
+}
+
+.status-message {
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 1.1rem;
+}
+
+.todo-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
